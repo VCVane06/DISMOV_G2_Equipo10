@@ -11,15 +11,23 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.GestorPro">
+
+        <!-- Cambiar MainActivity por InventarioActivity como pantalla principal -->
         <activity
-            android:name=".MainActivity"
-            android:exported="true">
+            android:name=".InventarioActivity"
+            android:exported="true"
+            android:label="Gestor de Inventario">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Mantener MainActivity pero sin ser la principal -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="false" />
+
     </application>
 
 </manifest>
