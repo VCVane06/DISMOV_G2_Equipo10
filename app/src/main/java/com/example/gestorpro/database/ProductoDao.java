@@ -18,15 +18,20 @@ public interface ProductoDao {
     @Delete
     void delete(Producto producto);
 
-    @Query("SELECT * FROM productos")
-    List<Producto> getAll();
+    // Obtener todos los productos de un usuario específico
+    @Query("SELECT * FROM productos WHERE usuario_id = :usuarioId")
+    List<Producto> getAllByUser(int usuarioId);
 
     @Query("SELECT * FROM productos WHERE id = :id")
     Producto getById(int id);
 
-    @Query("SELECT * FROM productos WHERE codigo_barras = :codigo")
-    Producto getByCodigo(String codigo);
+    @Query("SELECT * FROM productos WHERE codigo_barras = :codigo AND usuario_id = :usuarioId")
+    Producto getByCodigo(String codigo, int usuarioId);
 
-    @Query("SELECT * FROM productos WHERE cantidad_actual <= cantidad_minima")
-    List<Producto> getProductosStockBajo();
+    @Query("SELECT * FROM productos WHERE cantidad_actual <= cantidad_minima AND usuario_id = :usuarioId")
+    List<Producto> getProductosStockBajo(int usuarioId);
+
+    // Búsqueda por nombre o código para un usuario
+    @Query("SELECT * FROM productos WHERE (nombre LIKE '%' || :query || '%' OR codigo_barras LIKE '%' || :query || '%') AND usuario_id = :usuarioId")
+    List<Producto> search(String query, int usuarioId);
 }

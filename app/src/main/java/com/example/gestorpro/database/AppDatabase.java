@@ -6,7 +6,7 @@ import androidx.room.RoomDatabase;
 import android.content.Context;
 
 @Database(entities = {Categoria.class, Producto.class, Movimiento.class, Usuario.class, Venta.class},
-        version = 1,
+        version = 2, // Incrementado de 1 a 2
         exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
     public abstract CategoriaDao categoriaDao();
@@ -23,6 +23,7 @@ public abstract class AppDatabase extends RoomDatabase {
                 if (INSTANCE == null) {
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
                                     AppDatabase.class, "gestorpro.db")
+                            .fallbackToDestructiveMigration() // Añadido para evitar errores de migración en desarrollo
                             .build();
                 }
             }

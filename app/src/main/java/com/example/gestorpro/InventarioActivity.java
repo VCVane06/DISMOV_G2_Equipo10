@@ -21,11 +21,15 @@ public class InventarioActivity extends AppCompatActivity {
     private ProductosPagerAdapter pagerAdapter;
     private AppDatabase db;
     private ExecutorService executorService;
+    private int usuarioId; // Añadido para rastrear al usuario
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_inventario);
+
+        // Recuperar el ID del usuario desde el Intent
+        usuarioId = getIntent().getIntExtra("USER_ID", -1);
 
         // Inicializar base de datos
         db = AppDatabase.getInstance(this);
@@ -58,7 +62,8 @@ public class InventarioActivity extends AppCompatActivity {
     }
 
     private void mostrarDialogoProducto(Producto producto) {
-        ProductoDialogFragment dialog = ProductoDialogFragment.newInstance(producto);
+        // Corregido: Ahora pasamos usuarioId como primer argumento
+        ProductoDialogFragment dialog = ProductoDialogFragment.newInstance(usuarioId, producto);
         dialog.setOnProductoGuardadoListener(productoGuardado -> {
             executorService.execute(() -> {
                 if (productoGuardado.getId() == 0) {

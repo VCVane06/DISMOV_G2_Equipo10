@@ -7,13 +7,22 @@ import androidx.room.ColumnInfo;
 import java.io.Serializable;
 
 @Entity(tableName = "productos",
-        foreignKeys = @ForeignKey(entity = Categoria.class,
+        foreignKeys = {
+            @ForeignKey(entity = Categoria.class,
                 parentColumns = "id",
                 childColumns = "categoria_id",
-                onDelete = ForeignKey.SET_NULL))
+                onDelete = ForeignKey.SET_NULL),
+            @ForeignKey(entity = Usuario.class,
+                parentColumns = "id",
+                childColumns = "usuario_id",
+                onDelete = ForeignKey.CASCADE)
+        })
 public class Producto implements Serializable {
     @PrimaryKey(autoGenerate = true)
     private int id;
+
+    @ColumnInfo(name = "usuario_id")
+    private int usuarioId; // Relación con el usuario
 
     @ColumnInfo(name = "codigo_barras")
     private String codigoBarras;
@@ -30,14 +39,14 @@ public class Producto implements Serializable {
     private double precioUnitario;
 
     @ColumnInfo(name = "categoria_id")
-    private Integer categoriaId; // Puede ser null
+    private Integer categoriaId;
 
     @ColumnInfo(name = "ultima_actualizacion")
     private long ultimaActualizacion;
 
-    // Constructor (sin id porque es auto-generado)
-    public Producto(String codigoBarras, String nombre, int cantidadMinima,
+    public Producto(int usuarioId, String codigoBarras, String nombre, int cantidadMinima,
                     int cantidadActual, double precioUnitario, Integer categoriaId, long ultimaActualizacion) {
+        this.usuarioId = usuarioId;
         this.codigoBarras = codigoBarras;
         this.nombre = nombre;
         this.cantidadMinima = cantidadMinima;
@@ -50,6 +59,9 @@ public class Producto implements Serializable {
     // Getters y Setters
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
+
+    public int getUsuarioId() { return usuarioId; }
+    public void setUsuarioId(int usuarioId) { this.usuarioId = usuarioId; }
 
     public String getCodigoBarras() { return codigoBarras; }
     public void setCodigoBarras(String codigoBarras) { this.codigoBarras = codigoBarras; }

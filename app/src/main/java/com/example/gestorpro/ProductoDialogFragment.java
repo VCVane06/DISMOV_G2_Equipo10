@@ -22,6 +22,7 @@ import java.util.concurrent.Executors;
 public class ProductoDialogFragment extends DialogFragment {
 
     private Producto producto;
+    private int usuarioId;
     private TextInputEditText etCodigoBarras, etNombre, etCantidadActual, etCantidadMinima, etPrecio;
     private Spinner spinnerCategoria;
     private AppDatabase db;
@@ -33,9 +34,10 @@ public class ProductoDialogFragment extends DialogFragment {
         void onProductoGuardado(Producto producto);
     }
 
-    public static ProductoDialogFragment newInstance(Producto producto) {
+    public static ProductoDialogFragment newInstance(int usuarioId, Producto producto) {
         ProductoDialogFragment fragment = new ProductoDialogFragment();
         Bundle args = new Bundle();
+        args.putInt("usuarioId", usuarioId);
         if (producto != null) {
             args.putSerializable("producto", producto);
         }
@@ -51,6 +53,7 @@ public class ProductoDialogFragment extends DialogFragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
+            usuarioId = getArguments().getInt("usuarioId");
             producto = (Producto) getArguments().getSerializable("producto");
         }
         db = AppDatabase.getInstance(requireContext());
@@ -83,7 +86,7 @@ public class ProductoDialogFragment extends DialogFragment {
 
         builder.setView(view)
                 .setTitle(producto == null ? "Agregar Producto" : "Editar Producto")
-                .setPositiveButton("Guardar", null) // Set to null to override behavior and prevent auto-dismiss if validation fails
+                .setPositiveButton("Guardar", null)
                 .setNegativeButton("Cancelar", (dialog, which) -> dismiss());
 
         AlertDialog dialog = builder.create();
@@ -163,8 +166,9 @@ public class ProductoDialogFragment extends DialogFragment {
         }
 
         if (producto == null) {
-            producto = new Producto(codigo, nombre, cantMin, cantActual, precio, categoriaId, System.currentTimeMillis());
+            producto = new Producto(usuarioId, codigo, nombre, cantMin, cantActual, precio, categoriaId, System.currentTimeMillis());
         } else {
+            producto.setUsuarioId(usuarioId);
             producto.setCodigoBarras(codigo);
             producto.setNombre(nombre);
             producto.setCantidadActual(cantActual);

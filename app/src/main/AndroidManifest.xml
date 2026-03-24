@@ -12,20 +12,23 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.GestorPro">
 
-        <!-- Cambiar MainActivity por InventarioActivity como pantalla principal -->
+        <!-- LoginActivity como pantalla principal -->
         <activity
-            android:name=".InventarioActivity"
-            android:exported="true"
-            android:label="Gestor de Inventario">
+            android:name=".LoginActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <!-- Mantener MainActivity pero sin ser la principal -->
         <activity
             android:name=".MainActivity"
+            android:exported="false" />
+
+        <!-- Añadir RegisterActivity si la vamos a crear pronto -->
+        <activity
+            android:name=".RegisterActivity"
             android:exported="false" />
 
     </application>

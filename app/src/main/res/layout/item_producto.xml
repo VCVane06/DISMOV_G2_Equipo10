@@ -1,102 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="4dp"
+    android:layout_marginHorizontal="16dp"
+    android:layout_marginVertical="8dp"
+    app:cardCornerRadius="8dp"
     app:cardElevation="2dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:orientation="horizontal"
         android:padding="12dp">
 
-        <TextView
-            android:id="@+id/tvNombreProducto"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Nombre producto"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/tvCodigoBarras"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Código: "
-            android:textSize="12sp"
-            android:visibility="gone" />
+        <ImageView
+            android:id="@+id/ivProductImage"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/logo_gestionpro" />
 
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:orientation="horizontal">
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginStart="12dp"
+            android:orientation="vertical"
+            android:gravity="center_vertical">
 
             <TextView
-                android:id="@+id/tvCantidad"
-                android:layout_width="0dp"
+                android:id="@+id/tvProductName"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Stock: 0"
-                android:textSize="14sp" />
+                android:text="Producto 1"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/black" />
 
             <TextView
-                android:id="@+id/tvPrecio"
-                android:layout_width="0dp"
+                android:id="@+id/tvProductCode"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Precio: $0"
+                android:text="Código 123"
                 android:textSize="14sp"
-                android:textAlignment="textEnd" />
+                android:textColor="@android:color/darker_gray" />
+
+            <TextView
+                android:id="@+id/tvProductPrice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="$200.00"
+                android:textSize="16sp"
+                android:textColor="@android:color/black" />
         </LinearLayout>
 
         <TextView
-            android:id="@+id/tvAlertaStock"
-            android:layout_width="match_parent"
+            android:id="@+id/tvProductStock"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="⚠️ Stock bajo"
-            android:textColor="@android:color/holo_red_dark"
-            android:textSize="12sp"
-            android:visibility="gone" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/btnVender"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginEnd="4dp"
-                android:text="Vender"
-                android:textSize="12sp" />
-
-            <Button
-                android:id="@+id/btnEditar"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginStart="2dp"
-                android:layout_marginEnd="2dp"
-                android:text="Editar"
-                android:textSize="12sp" />
-
-            <Button
-                android:id="@+id/btnEliminar"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginStart="4dp"
-                android:text="Eliminar"
-                android:textSize="12sp" />
-        </LinearLayout>
+            android:layout_gravity="bottom"
+            android:text="Stock: 30/50"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="#00BCD4" />
 
     </LinearLayout>
-
-</com.google.android.material.card.MaterialCardView>
+</androidx.cardview.widget.CardView>

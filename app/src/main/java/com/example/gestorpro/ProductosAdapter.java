@@ -1,9 +1,10 @@
 package com.example.gestorpro;
 
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -16,15 +17,13 @@ public class ProductosAdapter extends RecyclerView.Adapter<ProductosAdapter.Prod
 
     private List<Producto> productosOriginal = new ArrayList<>();
     private List<Producto> productosFiltrados = new ArrayList<>();
-    private OnProductoActionListener listener;
+    private OnProductoClickListener listener;
 
-    public interface OnProductoActionListener {
-        void onVender(Producto producto);
-        void onEditar(Producto producto);
-        void onEliminar(Producto producto);
+    public interface OnProductoClickListener {
+        void onProductClick(Producto producto);
     }
 
-    public ProductosAdapter(List<Producto> productos, OnProductoActionListener listener) {
+    public ProductosAdapter(List<Producto> productos, OnProductoClickListener listener) {
         this.productosOriginal.addAll(productos);
         this.productosFiltrados.addAll(productos);
         this.listener = listener;
@@ -41,7 +40,7 @@ public class ProductosAdapter extends RecyclerView.Adapter<ProductosAdapter.Prod
     @Override
     public void onBindViewHolder(@NonNull ProductoViewHolder holder, int position) {
         Producto producto = productosFiltrados.get(position);
-        holder.bind(producto);
+        holder.bind(producto, listener);
     }
 
     @Override
@@ -73,46 +72,34 @@ public class ProductosAdapter extends RecyclerView.Adapter<ProductosAdapter.Prod
         notifyDataSetChanged();
     }
 
-    class ProductoViewHolder extends RecyclerView.ViewHolder {
-        private TextView tvNombre, tvCodigo, tvCantidad, tvPrecio, tvAlerta;
-        private Button btnVender, btnEditar, btnEliminar;
+    static class ProductoViewHolder extends RecyclerView.ViewHolder {
+        private TextView tvName, tvCode, tvPrice, tvStock;
+        private ImageView ivImage;
 
         public ProductoViewHolder(@NonNull View itemView) {
             super(itemView);
-            tvNombre = itemView.findViewById(R.id.tvNombreProducto);
-            tvCodigo = itemView.findViewById(R.id.tvCodigoBarras);
-            tvCantidad = itemView.findViewById(R.id.tvCantidad);
-            tvPrecio = itemView.findViewById(R.id.tvPrecio);
-            tvAlerta = itemView.findViewById(R.id.tvAlertaStock);
-            btnVender = itemView.findViewById(R.id.btnVender);
-            btnEditar = itemView.findViewById(R.id.btnEditar);
-            btnEliminar = itemView.findViewById(R.id.btnEliminar);
+            tvName = itemView.findViewById(R.id.tvProductName);
+            tvCode = itemView.findViewById(R.id.tvProductCode);
+            tvPrice = itemView.findViewById(R.id.tvProductPrice);
+            tvStock = itemView.findViewById(R.id.tvProductStock);
+            ivImage = itemView.findViewById(R.id.ivProductImage);
         }
 
-        public void bind(Producto producto) {
-            tvNombre.setText(producto.getNombre());
-            if (producto.getCodigoBarras() != null && !producto.getCodigoBarras().isEmpty()) {
-                tvCodigo.setText("Código: " + producto.getCodigoBarras());
-                tvCodigo.setVisibility(View.VISIBLE);
-            } else {
-                tvCodigo.setVisibility(View.GONE);
-            }
+        public void bind(final Producto producto, final OnProductoClickListener listener) {
+            tvName.setText(producto.getNombre());
+            tvCode.setText("Código " + (producto.getCodigoBarras() != null ? producto.getCodigoBarras() : "---"));
+            tvPrice.setText(String.format(Locale.getDefault(), "$%.2f", producto.getPrecioUnitario()));
+            tvStock.setText(String.format(Locale.getDefault(), "Stock: %d/%d", 
+                    producto.getCantidadActual(), producto.getCantidadMinima()));
 
-            tvCantidad.setText(String.format("Stock: %d", producto.getCantidadActual()));
-            tvPrecio.setText(String.format(Locale.getDefault(), "Precio: $%.2f", producto.getPrecioUnitario()));
-
-            // Verificar stock bajo
+            // Lógica de colores para el stock
             if (producto.getCantidadActual() <= producto.getCantidadMinima()) {
-                tvAlerta.setVisibility(View.VISIBLE);
-                tvCantidad.setTextColor(0xFFFF0000);
+                tvStock.setTextColor(Color.RED);
             } else {
-                tvAlerta.setVisibility(View.GONE);
-                tvCantidad.setTextColor(0xFF000000);
+                tvStock.setTextColor(Color.parseColor("#00BCD4"));
             }
 
-            btnVender.setOnClickListener(v -> listener.onVender(producto));
-            btnEditar.setOnClickListener(v -> listener.onEditar(producto));
-            btnEliminar.setOnClickListener(v -> listener.onEliminar(producto));
+            itemView.setOnClickListener(v -> listener.onProductClick(producto));
         }
     }
 }

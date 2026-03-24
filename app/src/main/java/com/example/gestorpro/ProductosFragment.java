@@ -24,13 +24,24 @@ public class ProductosFragment extends Fragment {
     private ProductosAdapter adapter;
     private List<Producto> productosList = new ArrayList<>();
     private boolean mostrarSoloStockBajo;
+    private int usuarioId; // Añadido para filtrar por usuario
     private AppDatabase db;
     private ExecutorService executorService;
+
+    public static ProductosFragment newInstance(int usuarioId, boolean mostrarSoloStockBajo) {
+        ProductosFragment fragment = new ProductosFragment();
+        Bundle args = new Bundle();
+        args.putInt("usuarioId", usuarioId);
+        args.putBoolean("mostrarSoloStockBajo", mostrarSoloStockBajo);
+        fragment.setArguments(args);
+        return fragment;
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
+            usuarioId = getArguments().getInt("usuarioId", -1);
             mostrarSoloStockBajo = getArguments().getBoolean("mostrarSoloStockBajo", false);
         }
         db = AppDatabase.getInstance(requireContext());
@@ -40,31 +51,17 @@ public class ProductosFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        // Corrected layout name from fragment_productos to fragment_products
         View view = inflater.inflate(R.layout.fragment_products, container, false);
 
         recyclerView = view.findViewById(R.id.recyclerViewProductos);
         searchView = view.findViewById(R.id.searchView);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter = new ProductosAdapter(productosList, new ProductosAdapter.OnProductoActionListener() {
-            @Override
-            public void onVender(Producto producto) {
-                mostrarDialogoVenta(producto);
-            }
-
-            @Override
-            public void onEditar(Producto producto) {
-                if (getActivity() instanceof InventarioActivity) {
-                    ((InventarioActivity) getActivity()).editarProducto(producto);
-                }
-            }
-
-            @Override
-            public void onEliminar(Producto producto) {
-                if (getActivity() instanceof InventarioActivity) {
-                    ((InventarioActivity) getActivity()).eliminarProducto(producto);
-                }
+        
+        // Actualizado para usar OnProductoClickListener
+        adapter = new ProductosAdapter(productosList, producto -> {
+            if (getActivity() instanceof InventarioActivity) {
+                ((InventarioActivity) getActivity()).editarProducto(producto);
             }
         });
 
@@ -91,10 +88,11 @@ public class ProductosFragment extends Fragment {
     private void cargarProductos() {
         executorService.execute(() -> {
             List<Producto> productos;
+            // Corregido: Ahora pasamos usuarioId a las consultas
             if (mostrarSoloStockBajo) {
-                productos = db.productoDao().getProductosStockBajo();
+                productos = db.productoDao().getProductosStockBajo(usuarioId);
             } else {
-                productos = db.productoDao().getAll();
+                productos = db.productoDao().getAllByUser(usuarioId);
             }
 
             if (getActivity() != null) {
@@ -105,17 +103,6 @@ public class ProductosFragment extends Fragment {
                 });
             }
         });
-    }
-
-    private void mostrarDialogoVenta(Producto producto) {
-        VentaDialogFragment dialog = VentaDialogFragment.newInstance(producto);
-        dialog.setOnVentaRealizadaListener(() -> {
-            cargarProductos();
-            if (getActivity() instanceof InventarioActivity) {
-                ((InventarioActivity) getActivity()).actualizarTodosLosFragments();
-            }
-        });
-        dialog.show(getParentFragmentManager(), "venta_dialog");
     }
 
     public void actualizarLista() {
