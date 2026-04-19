@@ -23,6 +23,7 @@ public class ProductoDialogFragment extends DialogFragment {
 
     private Producto producto;
     private int usuarioId;
+    private String codigoInicial; // Nuevo: Para el escáner
     private TextInputEditText etCodigoBarras, etNombre, etCantidadActual, etCantidadMinima, etPrecio;
     private Spinner spinnerCategoria;
     private AppDatabase db;
@@ -35,9 +36,15 @@ public class ProductoDialogFragment extends DialogFragment {
     }
 
     public static ProductoDialogFragment newInstance(int usuarioId, Producto producto) {
+        return newInstance(usuarioId, producto, null);
+    }
+
+    // Sobrecarga para incluir código inicial del escáner
+    public static ProductoDialogFragment newInstance(int usuarioId, Producto producto, String codigoInicial) {
         ProductoDialogFragment fragment = new ProductoDialogFragment();
         Bundle args = new Bundle();
         args.putInt("usuarioId", usuarioId);
+        args.putString("codigoInicial", codigoInicial);
         if (producto != null) {
             args.putSerializable("producto", producto);
         }
@@ -55,6 +62,7 @@ public class ProductoDialogFragment extends DialogFragment {
         if (getArguments() != null) {
             usuarioId = getArguments().getInt("usuarioId");
             producto = (Producto) getArguments().getSerializable("producto");
+            codigoInicial = getArguments().getString("codigoInicial");
         }
         db = AppDatabase.getInstance(requireContext());
         executorService = Executors.newSingleThreadExecutor();
@@ -80,6 +88,8 @@ public class ProductoDialogFragment extends DialogFragment {
             etCantidadActual.setText(String.valueOf(producto.getCantidadActual()));
             etCantidadMinima.setText(String.valueOf(producto.getCantidadMinima()));
             etPrecio.setText(String.valueOf(producto.getPrecioUnitario()));
+        } else if (codigoInicial != null) {
+            etCodigoBarras.setText(codigoInicial); // Auto-completar código
         }
 
         cargarCategorias();

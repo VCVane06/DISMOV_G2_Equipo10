@@ -54,7 +54,9 @@ public class MainActivity extends AppCompatActivity {
                 intent.putExtra("USER_ID", usuarioId);
                 startActivity(intent);
             } else if (id == R.id.nav_escanear) {
-                Toast.makeText(MainActivity.this, "Abriendo Escáner...", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(MainActivity.this, ScanActivity.class);
+                intent.putExtra("USER_ID", usuarioId);
+                startActivity(intent);
             } else if (id == R.id.nav_venta) {
                 Toast.makeText(MainActivity.this, "Abriendo Ventas...", Toast.LENGTH_SHORT).show();
             } else if (id == R.id.nav_config) {
