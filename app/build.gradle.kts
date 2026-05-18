@@ -1,15 +1,16 @@
 plugins {
     alias(libs.plugins.android.application)
+    alias(libs.plugins.google.gms.google.services)
 }
 
 android {
     namespace = "com.example.gestorpro"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.example.gestorpro"
         minSdk = 24
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
 
@@ -32,29 +33,42 @@ android {
 }
 
 dependencies {
+    // Firebase usando el catálogo de versiones (libs)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.firestore)
+    implementation(libs.firebase.auth)
+    // Se omitió firebase-storage
+
+    // AndroidX y UI
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.constraintlayout)
+    implementation(libs.activity)
     implementation("androidx.viewpager2:viewpager2:1.0.0")
     implementation("androidx.recyclerview:recyclerview:1.3.2")
-    
-    val roomVersion = "2.6.1"
-    implementation("androidx.room:room-runtime:$roomVersion")
-    annotationProcessor("androidx.room:room-compiler:$roomVersion")
-    implementation("androidx.room:room-common:$roomVersion")
 
-    // CameraX dependencies
+    // Glide para cargar imágenes (útil incluso para recursos locales o URLs externas)
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+    annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
+
+    // Gson
+    implementation("com.google.code.gson:gson:2.11.0")
+
+    // CameraX
     val camerax_version = "1.3.4"
     implementation("androidx.camera:camera-core:${camerax_version}")
     implementation("androidx.camera:camera-camera2:${camerax_version}")
     implementation("androidx.camera:camera-lifecycle:${camerax_version}")
     implementation("androidx.camera:camera-view:${camerax_version}")
 
-    // ML Kit Barcode Scanning
+    // ML Kit para Escaneo
     implementation("com.google.mlkit:barcode-scanning:17.2.0")
 
-    // Dependencias de Prueba
-    testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.2.1")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
+    // MPAndroidChart para gráficas
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+
+    // Pruebas (Test)
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.ext.junit)
+    androidTestImplementation(libs.espresso.core)
 }

@@ -1,54 +1,36 @@
 package com.example.gestorpro.database;
 
+import java.io.Serializable;
 
-import androidx.room.Entity;
-import androidx.room.PrimaryKey;
-import androidx.room.ColumnInfo;
+public class Usuario implements Serializable {
+    private String uid;
+    private String nombre;
+    private String correo;
+    private String rol; // "Administrador", "Almacen", "Ventas"
+    private String foto_url;
 
-@Entity(tableName = "usuarios")
-public class Usuario {
-    @PrimaryKey(autoGenerate = true)
-    private int id;
-
-    @ColumnInfo(name = "email")
-    private String email;
-
-    @ColumnInfo(name = "nombre_usuario")
-    private String nombreUsuario;
-
-    @ColumnInfo(name = "contrasena_hash")
-    private String contrasenaHash;
-
-    @ColumnInfo(name = "foto_perfil")
-    private String fotoPerfil;
-
-    @ColumnInfo(name = "fecha_creacion")
-    private long fechaCreacion; // timestamp
-
-    // Constructor
-    public Usuario(String email, String nombreUsuario, String contrasenaHash) {
-        this.email = email;
-        this.nombreUsuario = nombreUsuario;
-        this.contrasenaHash = contrasenaHash;
-        this.fechaCreacion = System.currentTimeMillis();
+    public Usuario() {
     }
 
-    // Getters y setters...
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    public Usuario(String uid, String nombre, String correo, String rol) {
+        this.uid = uid;
+        this.nombre = nombre;
+        this.correo = correo;
+        this.rol = rol;
+    }
 
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
+    public String getUid() { return uid; }
+    public void setUid(String uid) { this.uid = uid; }
 
-    public String getNombreUsuario() { return nombreUsuario; }
-    public void setNombreUsuario(String nombreUsuario) { this.nombreUsuario = nombreUsuario; }
+    public String getNombre() { return nombre; }
+    public void setNombre(String nombre) { this.nombre = nombre; }
 
-    public String getContrasenaHash() { return contrasenaHash; }
-    public void setContrasenaHash(String contrasenaHash) { this.contrasenaHash = contrasenaHash; }
+    public String getCorreo() { return correo; }
+    public void setCorreo(String correo) { this.correo = correo; }
 
-    public String getFotoPerfil() { return fotoPerfil; }
-    public void setFotoPerfil(String fotoPerfil) { this.fotoPerfil = fotoPerfil; }
+    public String getRol() { return rol; }
+    public void setRol(String rol) { this.rol = rol; }
 
-    public long getFechaCreacion() { return fechaCreacion; }
-    public void setFechaCreacion(long fechaCreacion) { this.fechaCreacion = fechaCreacion; }
+    public String getFoto_url() { return foto_url; }
+    public void setFoto_url(String foto_url) { this.foto_url = foto_url; }
 }

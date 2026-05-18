@@ -2,13 +2,13 @@
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item>
         <shape android:shape="ring" android:thickness="6dp" android:useLevel="false">
-            <solid android:color="#EEEEEE" />
+            <solid android:color="#CBD5E1" />
         </shape>
     </item>
     <item>
         <rotate android:fromDegrees="270" android:toDegrees="270">
             <shape android:shape="ring" android:thickness="6dp" android:useLevel="true">
-                <solid android:color="#4CAF50" />
+                <solid android:color="#166534" /> <!-- Verde oscuro intenso -->
             </shape>
         </rotate>
     </item>

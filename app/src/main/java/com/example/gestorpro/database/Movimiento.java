@@ -1,76 +1,63 @@
 package com.example.gestorpro.database;
 
-import androidx.room.Entity;
-import androidx.room.ForeignKey;
-import androidx.room.PrimaryKey;
-import androidx.room.ColumnInfo;
+import com.google.firebase.Timestamp;
+import java.io.Serializable;
 
-@Entity(tableName = "movimientos",
-        foreignKeys = {
-                @ForeignKey(entity = Producto.class,
-                        parentColumns = "id",
-                        childColumns = "producto_id",
-                        onDelete = ForeignKey.CASCADE),
-                @ForeignKey(entity = Venta.class,
-                        parentColumns = "id",
-                        childColumns = "venta_id",
-                        onDelete = ForeignKey.CASCADE)
-        })
-public class Movimiento {
-    @PrimaryKey(autoGenerate = true)
-    private int id;
+public class Movimiento implements Serializable {
+    private String id_movimiento;
+    private String id_producto;
+    private String nombreProducto;
+    private String tipo; // "entrada", "salida", "ajuste"
+    private long cantidad;
+    private double precio;
+    private String id_usuario;
+    private String nombre_usuario;
+    private Timestamp timestamp; // Eliminado @ServerTimestamp para evitar nulls locales en el dashboard
 
-    @ColumnInfo(name = "producto_id")
-    private int productoId;
+    public Movimiento() {}
 
-    private String tipo; // "ENTRADA" o "SALIDA"
-
-    private int cantidad;
-
-    @ColumnInfo(name = "precio_unitario")
-    private double precioUnitario;
-
-    private long fecha;
-
-    @ColumnInfo(name = "venta_id")
-    private Integer ventaId; // Puede ser null si es una entrada de stock
-
-    private String nota;
-
-    // Constructor
-    public Movimiento(int productoId, String tipo, int cantidad, double precioUnitario,
-                      long fecha, Integer ventaId, String nota) {
-        this.productoId = productoId;
+    public Movimiento(String id_movimiento, String id_producto, String nombreProducto, String tipo, long cantidad, double precio, String id_usuario, String nombre_usuario, String descripcion) {
+        this.id_movimiento = id_movimiento;
+        this.id_producto = id_producto;
+        this.nombreProducto = nombreProducto;
         this.tipo = tipo;
         this.cantidad = cantidad;
-        this.precioUnitario = precioUnitario;
-        this.fecha = fecha;
-        this.ventaId = ventaId;
-        this.nota = nota;
+        this.precio = precio;
+        this.id_usuario = id_usuario;
+        this.nombre_usuario = nombre_usuario;
+        this.descripcion = descripcion;
+        this.timestamp = Timestamp.now(); // Asignación inmediata para sincronización en tiempo real
     }
 
-    // Getters y Setters
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    private String descripcion;
 
-    public int getProductoId() { return productoId; }
-    public void setProductoId(int productoId) { this.productoId = productoId; }
+    public String getId_movimiento() { return id_movimiento; }
+    public void setId_movimiento(String id_movimiento) { this.id_movimiento = id_movimiento; }
+
+    public String getId_producto() { return id_producto; }
+    public void setId_producto(String id_producto) { this.id_producto = id_producto; }
+
+    public String getNombreProducto() { return nombreProducto; }
+    public void setNombreProducto(String nombreProducto) { this.nombreProducto = nombreProducto; }
 
     public String getTipo() { return tipo; }
     public void setTipo(String tipo) { this.tipo = tipo; }
 
-    public int getCantidad() { return cantidad; }
-    public void setCantidad(int cantidad) { this.cantidad = cantidad; }
+    public long getCantidad() { return cantidad; }
+    public void setCantidad(long cantidad) { this.cantidad = cantidad; }
 
-    public double getPrecioUnitario() { return precioUnitario; }
-    public void setPrecioUnitario(double precioUnitario) { this.precioUnitario = precioUnitario; }
+    public double getPrecio() { return precio; }
+    public void setPrecio(double precio) { this.precio = precio; }
 
-    public long getFecha() { return fecha; }
-    public void setFecha(long fecha) { this.fecha = fecha; }
+    public String getId_usuario() { return id_usuario; }
+    public void setId_usuario(String id_usuario) { this.id_usuario = id_usuario; }
 
-    public Integer getVentaId() { return ventaId; }
-    public void setVentaId(Integer ventaId) { this.ventaId = ventaId; }
+    public String getNombre_usuario() { return nombre_usuario; }
+    public void setNombre_usuario(String nombre_usuario) { this.nombre_usuario = nombre_usuario; }
 
-    public String getNota() { return nota; }
-    public void setNota(String nota) { this.nota = nota; }
+    public Timestamp getTimestamp() { return timestamp; }
+    public void setTimestamp(Timestamp timestamp) { this.timestamp = timestamp; }
+
+    public String getDescripcion() { return descripcion; }
+    public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
 }

@@ -67,16 +67,19 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
 
         public void bind(final Producto producto, final OnProductClickListener listener) {
             tvName.setText(producto.getNombre());
-            tvCode.setText("Código " + producto.getCodigoBarras());
-            tvPrice.setText(String.format(Locale.getDefault(), "$%.2f", producto.getPrecioUnitario()));
+            tvCode.setText("Código " + (producto.getCodigo_barras() != null ? producto.getCodigo_barras() : "S/N"));
+            tvPrice.setText(String.format(Locale.getDefault(), "$%.2f", producto.getPrecio()));
             tvStock.setText(String.format(Locale.getDefault(), "Stock: %d/%d", 
-                    producto.getCantidadActual(), producto.getCantidadMinima()));
+                    producto.getStock_actual(), producto.getStock_minimo()));
+
+            // Siempre usar imagen local como se solicitó
+            ivImage.setImageResource(R.drawable.logo_gestionpro);
 
             // Lógica de colores para el stock
-            if (producto.getCantidadActual() <= producto.getCantidadMinima()) {
+            if (producto.getStock_actual() <= producto.getStock_minimo()) {
                 tvStock.setTextColor(Color.RED); // Stock bajo
             } else {
-                tvStock.setTextColor(Color.parseColor("#00BCD4")); // Stock normal (Cian como en el diseño)
+                tvStock.setTextColor(Color.parseColor("#00BCD4")); // Stock normal
             }
 
             itemView.setOnClickListener(v -> listener.onProductClick(producto));

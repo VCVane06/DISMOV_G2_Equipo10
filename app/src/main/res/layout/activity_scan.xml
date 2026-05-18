@@ -4,9 +4,22 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white">
+    android:background="#0F172A">
 
-    <!-- Header -->
+    <!-- Camera Preview -->
+    <androidx.camera.view.PreviewView
+        android:id="@+id/previewView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:scaleType="fillCenter" />
+
+    <!-- Dark Scrim Overlay (Creates focus) -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#99000000" />
+
+    <!-- Top Toolbar Area -->
     <RelativeLayout
         android:id="@+id/header"
         android:layout_width="match_parent"
@@ -16,194 +29,289 @@
 
         <ImageView
             android:id="@+id/btnBack"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:src="@drawable/ic_launcher_foreground"
-            app:tint="@android:color/black" />
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:background="@drawable/circle_shape"
+            android:backgroundTint="#33FFFFFF"
+            android:clickable="true"
+            android:focusable="true"
+            android:padding="12dp"
+            android:src="@drawable/ic_arrow_back"
+            app:tint="@android:color/white" />
 
         <TextView
+            android:id="@+id/tvScanTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:text="Escanear"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            android:textColor="@android:color/black" />
+            android:layout_centerInParent="true"
+            android:text="Escáner Inteligente"
+            android:textColor="@android:color/white"
+            android:textSize="20sp"
+            android:textStyle="bold" />
     </RelativeLayout>
 
-    <!-- Camera Preview Area -->
-    <androidx.camera.view.PreviewView
-        android:id="@+id/previewView"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@id/header"
-        app:layout_constraintBottom_toTopOf="@id/bottom_container" />
+    <!-- Scan Finder Frame (The "Hole") -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/scan_frame"
+        android:layout_width="280dp"
+        android:layout_height="220dp"
+        app:cardBackgroundColor="@android:color/transparent"
+        app:cardCornerRadius="24dp"
+        app:cardElevation="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:strokeColor="#FFFFFF"
+        app:strokeWidth="3dp">
 
-    <!-- Scan Overlay (Line) -->
-    <View
-        android:id="@+id/scan_line"
-        android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:background="#FF0000"
-        app:layout_constraintTop_toTopOf="@id/previewView"
-        app:layout_constraintBottom_toBottomOf="@id/previewView"
-        android:layout_marginHorizontal="40dp"/>
+        <!-- Animated Blue Laser Line -->
+        <View
+            android:id="@+id/scan_line"
+            android:layout_width="match_parent"
+            android:layout_height="4dp"
+            android:background="@drawable/scan_line_gradient"
+            android:alpha="0.8" />
+    </com.google.android.material.card.MaterialCardView>
 
-    <!-- Bottom Container for Instructions or Results -->
-    <FrameLayout
-        android:id="@+id/bottom_container"
+    <TextView
+        android:id="@+id/tvGuideText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="Alinea el código de barras aquí"
+        android:textColor="#E2E8F0"
+        android:textSize="15sp"
+        android:textStyle="normal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/scan_frame" />
+
+    <!-- Result Bottom Card (Elegant & Modern) -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/bottom_card"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="24dp"
+        android:layout_margin="16dp"
+        app:cardCornerRadius="32dp"
+        app:cardElevation="12dp"
+        app:strokeWidth="0dp"
         app:layout_constraintBottom_toBottomOf="parent">
 
-        <!-- Initial Instructions View -->
-        <LinearLayout
-            android:id="@+id/view_instructions"
+        <FrameLayout
+            android:id="@+id/bottom_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#D9D9D9"
-            android:orientation="horizontal"
-            android:padding="16dp"
-            android:visibility="visible">
+            android:padding="24dp"
+            android:animateLayoutChanges="true">
 
+            <!-- STATE: SEARCHING -->
             <LinearLayout
-                android:layout_width="0dp"
+                android:id="@+id/view_instructions"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:visibility="visible">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    app:cardCornerRadius="18dp"
+                    app:cardElevation="0dp"
+                    app:cardBackgroundColor="#EFF6FF">
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:padding="14dp"
+                        android:src="@drawable/ic_upc_scan"
+                        app:tint="#2563EB" />
+                </com.google.android.material.card.MaterialCardView>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Listo para escanear"
+                        android:textColor="#1E293B"
+                        android:textSize="17sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Detectando códigos automáticamente"
+                        android:textColor="#64748B"
+                        android:textSize="14sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- STATE: PRODUCT NOT REGISTERED -->
+            <LinearLayout
+                android:id="@+id/view_not_found"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:src="@android:drawable/ic_dialog_alert"
+                        app:tint="#EF4444" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:text="Producto no registrado"
+                        android:textColor="#EF4444"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
                 <TextView
+                    android:id="@+id/tvScannedCodeNotFound"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Indicaciones:"
+                    android:layout_marginTop="16dp"
+                    android:text="SKU: 00000000"
+                    android:textColor="#1E293B"
+                    android:background="#F8FAFC"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="6dp"
+                    android:textStyle="bold" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnGoToRegister"
+                    android:layout_width="match_parent"
+                    android:layout_height="58dp"
+                    android:layout_marginTop="24dp"
+                    android:text="Registrar este Producto"
+                    android:textAllCaps="false"
+                    android:textSize="16sp"
                     android:textStyle="bold"
-                    android:textColor="@android:color/black" />
-                <TextView
-                    android:layout_width="wrap_content"
+                    app:cornerRadius="18dp"
+                    android:backgroundTint="#2563EB"
+                    app:icon="@android:drawable/ic_input_add" />
+            </LinearLayout>
+
+            <!-- STATE: PRODUCT FOUND -->
+            <LinearLayout
+                android:id="@+id/view_found"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="Asegúrate de que el código quede completamente visible dentro del marco de la cámara."
-                    android:textColor="@android:color/black" />
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="72dp"
+                        android:layout_height="72dp"
+                        app:cardCornerRadius="16dp"
+                        app:cardElevation="0dp"
+                        app:cardBackgroundColor="#F1F5F9">
+                        <ImageView
+                            android:id="@+id/ivFoundProductImage"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:padding="16dp"
+                            android:src="@drawable/logo_gestionpro" />
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/tvFoundProductNameHeader"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:ellipsize="end"
+                            android:maxLines="2"
+                            android:text="Nombre del Producto"
+                            android:textColor="#0F172A"
+                            android:textSize="20sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tvFoundCode"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="12345678"
+                            android:textColor="#64748B"
+                            android:textSize="14sp" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="#F1F5F9"
+                    android:layout_marginVertical="20dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:weightSum="2">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="PRECIO" android:textSize="11sp" android:textColor="#94A3B8" android:textAllCaps="true" android:textStyle="bold"/>
+                        <TextView android:id="@+id/tvFoundPrice" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="$0.00" android:textColor="#2563EB" android:textSize="20sp" android:textStyle="bold"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="STOCK" android:textSize="11sp" android:textColor="#94A3B8" android:textAllCaps="true" android:textStyle="bold"/>
+                        <TextView android:id="@+id/tvFoundQty" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0" android:textColor="#0F172A" android:textSize="20sp" android:textStyle="bold"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnAdminProduct"
+                    android:layout_width="match_parent"
+                    android:layout_height="58dp"
+                    android:layout_marginTop="24dp"
+                    android:text="Gestionar Inventario"
+                    android:textAllCaps="false"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    app:cornerRadius="18dp"
+                    android:backgroundTint="#0F172A"
+                    app:icon="@android:drawable/ic_menu_directions" />
+
+                <!-- Internal Hidden Fields -->
+                <TextView android:id="@+id/tvFoundName" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
             </LinearLayout>
-
-            <ImageView
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_gravity="center_vertical"
-                android:src="@drawable/ic_upc_scan" />
-        </LinearLayout>
-
-        <!-- Result View: Not Found -->
-        <LinearLayout
-            android:id="@+id/view_not_found"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:visibility="gone">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Resultados:"
-                android:textStyle="bold"
-                android:textSize="18sp"
-                android:textColor="@android:color/black" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="Código"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/tvScannedCodeNotFound"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="123" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="El código del producto no se encuentra registrado." />
-
-            <TextView
-                android:id="@+id/btnGoToRegister"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:layout_marginTop="16dp"
-                android:text="Registrar producto >"
-                android:textStyle="bold"
-                android:textColor="#003399" />
-        </LinearLayout>
-
-        <!-- Result View: Found -->
-        <LinearLayout
-            android:id="@+id/view_found"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:visibility="gone">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Resultados:"
-                android:textStyle="bold"
-                android:textSize="18sp"
-                android:textColor="@android:color/black" />
-
-            <TextView
-                android:id="@+id/tvFoundProductNameHeader"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="Nombre del producto" />
-
-            <ImageView
-                android:id="@+id/ivFoundProductImage"
-                android:layout_width="120dp"
-                android:layout_height="120dp"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="16dp"
-                android:src="@drawable/logo_gestionpro" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="16dp"
-                android:weightSum="4">
-                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Código" android:textStyle="bold"/>
-                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Nombre" android:textStyle="bold"/>
-                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Cantidad" android:textStyle="bold"/>
-                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Precio" android:textStyle="bold"/>
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="4dp"
-                android:weightSum="4">
-                <TextView android:id="@+id/tvFoundCode" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="123"/>
-                <TextView android:id="@+id/tvFoundName" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Prod 1"/>
-                <TextView android:id="@+id/tvFoundQty" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="10/30"/>
-                <TextView android:id="@+id/tvFoundPrice" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="$200"/>
-            </LinearLayout>
-
-            <TextView
-                android:id="@+id/btnAdminProduct"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:layout_marginTop="16dp"
-                android:text="Administrar producto >"
-                android:textStyle="bold"
-                android:textColor="#003399" />
-        </LinearLayout>
-    </FrameLayout>
+        </FrameLayout>
+    </com.google.android.material.card.MaterialCardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

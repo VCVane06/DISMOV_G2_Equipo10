@@ -4,6 +4,7 @@
 
     <uses-feature android:name="android.hardware.camera" android:required="false" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
         android:allowBackup="true"
@@ -38,6 +39,22 @@
 
         <activity
             android:name=".ScanActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".PosActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".HistoryActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".UserManagementActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".SettingsActivity"
             android:exported="false" />
 
     </application>

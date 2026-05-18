@@ -3,5 +3,5 @@
     android:shape="ring"
     android:thickness="6dp"
     android:useLevel="false">
-    <solid android:color="#EEEEEE" />
+    <solid android:color="#CBD5E1" /> <!-- Gris más oscuro para mejor contraste -->
 </shape>

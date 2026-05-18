@@ -17,6 +17,15 @@
             android:id="@+id/nav_venta"
             android:icon="@drawable/shop"
             android:title="Venta" />
+        <item
+            android:id="@+id/nav_historial"
+            android:icon="@drawable/bag_heart_fill"
+            android:title="Historial" />
+        <item
+            android:id="@+id/nav_usuarios"
+            android:icon="@android:drawable/ic_menu_edit"
+            android:title="Gestión de Perfiles"
+            android:visible="false" /> <!-- Visible solo para Admin -->
     </group>
 
     <item android:title="Opciones">

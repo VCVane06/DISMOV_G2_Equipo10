@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "427222896148",
+    "project_id": "gestorpro-ee05f",
+    "storage_bucket": "gestorpro-ee05f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:427222896148:android:4b47ce7e7bd1cd48abe101",
+        "android_client_info": {
+          "package_name": "com.example.gestorpro"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDCrCKjas8j5BAAYV1Azit5xDx5UiPhCe0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

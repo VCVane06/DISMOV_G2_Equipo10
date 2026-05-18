@@ -1,9 +1,17 @@
 package com.example.gestorpro;
 
 import android.Manifest;
+import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
+import android.util.Log;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.TranslateAnimation;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -21,10 +29,10 @@ import androidx.camera.view.PreviewView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.example.gestorpro.database.AppDatabase;
 import com.example.gestorpro.database.Producto;
-import com.example.gestorpro.database.ProductoDao;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.mlkit.vision.barcode.BarcodeScanner;
 import com.google.mlkit.vision.barcode.BarcodeScanning;
 import com.google.mlkit.vision.barcode.common.Barcode;
@@ -37,18 +45,21 @@ import java.util.concurrent.Executors;
 
 public class ScanActivity extends AppCompatActivity {
 
+    private static final String TAG = "ScanActivity";
+    public static final String EXTRA_RETURN_RESULT = "return_result";
+    public static final String EXTRA_SCANNED_CODE = "scanned_code";
+    
     private static final int PERMISSION_REQUEST_CAMERA = 1001;
     private PreviewView previewView;
     private ExecutorService cameraExecutor;
-    private int usuarioId;
-    private ProductoDao productoDao;
-    private AppDatabase db;
+    private String userUid, userName;
+    private FirebaseFirestore db;
+    private boolean returnResultMode = false;
 
-    // UI Result Views
     private LinearLayout viewInstructions, viewNotFound, viewFound;
-    private TextView tvScannedCodeNotFound, tvFoundCode, tvFoundName, tvFoundQty, tvFoundPrice, tvFoundProductNameHeader;
-    private TextView btnGoToRegister, btnAdminProduct;
-    private ImageView btnBack, ivFoundProductImage;
+    private TextView tvScannedCodeNotFound, tvFoundCode, tvFoundPrice, tvFoundQty, tvFoundProductNameHeader;
+    private View btnGoToRegister, btnAdminProduct, scanLine;
+    private ImageView btnBack;
 
     private boolean isScanningPaused = false;
 
@@ -57,26 +68,14 @@ public class ScanActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scan);
 
-        usuarioId = getIntent().getIntExtra("USER_ID", -1);
-        db = AppDatabase.getInstance(this);
-        productoDao = db.productoDao();
-
-        previewView = findViewById(R.id.previewView);
-        viewInstructions = findViewById(R.id.view_instructions);
-        viewNotFound = findViewById(R.id.view_not_found);
-        viewFound = findViewById(R.id.view_found);
-
-        tvScannedCodeNotFound = findViewById(R.id.tvScannedCodeNotFound);
-        tvFoundCode = findViewById(R.id.tvFoundCode);
-        tvFoundName = findViewById(R.id.tvFoundName);
-        tvFoundQty = findViewById(R.id.tvFoundQty);
-        tvFoundPrice = findViewById(R.id.tvFoundPrice);
-        tvFoundProductNameHeader = findViewById(R.id.tvFoundProductNameHeader);
+        userUid = getIntent().getStringExtra("USER_UID");
+        userName = getIntent().getStringExtra("USER_NAME");
+        returnResultMode = getIntent().getBooleanExtra(EXTRA_RETURN_RESULT, false);
         
-        btnGoToRegister = findViewById(R.id.btnGoToRegister);
-        btnAdminProduct = findViewById(R.id.btnAdminProduct);
-        btnBack = findViewById(R.id.btnBack);
-        ivFoundProductImage = findViewById(R.id.ivFoundProductImage);
+        db = FirebaseFirestore.getInstance();
+
+        initViews();
+        startScanLineAnimation();
 
         cameraExecutor = Executors.newSingleThreadExecutor();
 
@@ -89,19 +88,68 @@ public class ScanActivity extends AppCompatActivity {
         btnBack.setOnClickListener(v -> finish());
     }
 
+    private void initViews() {
+        previewView = findViewById(R.id.previewView);
+        viewInstructions = findViewById(R.id.view_instructions);
+        viewNotFound = findViewById(R.id.view_not_found);
+        viewFound = findViewById(R.id.view_found);
+        scanLine = findViewById(R.id.scan_line);
+
+        tvScannedCodeNotFound = findViewById(R.id.tvScannedCodeNotFound);
+        tvFoundCode = findViewById(R.id.tvFoundCode);
+        tvFoundPrice = findViewById(R.id.tvFoundPrice);
+        tvFoundQty = findViewById(R.id.tvFoundQty);
+        tvFoundProductNameHeader = findViewById(R.id.tvFoundProductNameHeader);
+        
+        btnGoToRegister = findViewById(R.id.btnGoToRegister);
+        btnAdminProduct = findViewById(R.id.btnAdminProduct);
+        btnBack = findViewById(R.id.btnBack);
+
+        viewInstructions.setOnClickListener(v -> resetScannerUI());
+    }
+
+    private void startScanLineAnimation() {
+        TranslateAnimation animation = new TranslateAnimation(
+                Animation.RELATIVE_TO_PARENT, 0.0f,
+                Animation.RELATIVE_TO_PARENT, 0.0f,
+                Animation.RELATIVE_TO_PARENT, 0.0f,
+                Animation.RELATIVE_TO_PARENT, 0.95f
+        );
+        animation.setDuration(2000);
+        animation.setRepeatCount(Animation.INFINITE);
+        animation.setRepeatMode(Animation.REVERSE);
+        scanLine.startAnimation(animation);
+    }
+
+    private void vibrateFeedback() {
+        try {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.VIBRATE) == PackageManager.PERMISSION_GRANTED) {
+                Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+                if (vibrator != null && vibrator.hasVibrator()) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        vibrator.vibrate(VibrationEffect.createOneShot(50, VibrationEffect.DEFAULT_AMPLITUDE));
+                    } else {
+                        vibrator.vibrate(50);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "No se pudo vibrar: " + e.getMessage());
+        }
+    }
+
     private boolean allPermissionsGranted() {
         return ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED;
     }
 
     private void startCamera() {
         ListenableFuture<ProcessCameraProvider> cameraProviderFuture = ProcessCameraProvider.getInstance(this);
-
         cameraProviderFuture.addListener(() -> {
             try {
                 ProcessCameraProvider cameraProvider = cameraProviderFuture.get();
                 bindCameraUseCases(cameraProvider);
             } catch (ExecutionException | InterruptedException e) {
-                Toast.makeText(this, "Error al iniciar cámara", Toast.LENGTH_SHORT).show();
+                Log.e(TAG, "Error al iniciar cámara", e);
             }
         }, ContextCompat.getMainExecutor(this));
     }
@@ -109,9 +157,7 @@ public class ScanActivity extends AppCompatActivity {
     private void bindCameraUseCases(@NonNull ProcessCameraProvider cameraProvider) {
         Preview preview = new Preview.Builder().build();
         preview.setSurfaceProvider(previewView.getSurfaceProvider());
-
-        CameraSelector cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA;
-
+        
         ImageAnalysis imageAnalysis = new ImageAnalysis.Builder()
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                 .build();
@@ -128,9 +174,9 @@ public class ScanActivity extends AppCompatActivity {
 
         try {
             cameraProvider.unbindAll();
-            cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageAnalysis);
+            cameraProvider.bindToLifecycle(this, CameraSelector.DEFAULT_BACK_CAMERA, preview, imageAnalysis);
         } catch (Exception e) {
-            Toast.makeText(this, "Fallo al vincular casos de uso", Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "Error binding use cases", e);
         }
     }
 
@@ -149,76 +195,87 @@ public class ScanActivity extends AppCompatActivity {
                         String rawValue = barcode.getRawValue();
                         if (rawValue != null && !isScanningPaused) {
                             isScanningPaused = true;
-                            processScannedCode(rawValue);
+                            runOnUiThread(() -> {
+                                vibrateFeedback();
+                                if (returnResultMode) {
+                                    returnScannedResult(rawValue);
+                                } else {
+                                    processScannedCode(rawValue);
+                                }
+                            });
                         }
                     }
                 })
                 .addOnCompleteListener(task -> imageProxy.close());
     }
 
+    private void returnScannedResult(String code) {
+        Intent data = new Intent();
+        data.putExtra(EXTRA_SCANNED_CODE, code);
+        setResult(RESULT_OK, data);
+        finish();
+    }
+
     private void processScannedCode(String code) {
-        Executors.newSingleThreadExecutor().execute(() -> {
-            Producto producto = productoDao.getByCodigo(code, usuarioId);
-            runOnUiThread(() -> {
-                viewInstructions.setVisibility(View.GONE);
-                if (producto != null) {
-                    showProductFound(producto);
-                } else {
-                    showProductNotFound(code);
-                }
-            });
-        });
+        // Búsqueda global (sin filtrar por usuario_creador_id)
+        db.collection("productos")
+                .whereEqualTo("codigo_barras", code)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        QueryDocumentSnapshot doc = (QueryDocumentSnapshot) queryDocumentSnapshots.getDocuments().get(0);
+                        Producto producto = doc.toObject(Producto.class);
+                        producto.setId(doc.getId());
+                        showProductFound(producto);
+                    } else {
+                        showProductNotFound(code);
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    isScanningPaused = false;
+                    Toast.makeText(this, "Error de red", Toast.LENGTH_SHORT).show();
+                });
     }
 
     private void showProductNotFound(String code) {
+        viewInstructions.setVisibility(View.GONE);
         viewFound.setVisibility(View.GONE);
         viewNotFound.setVisibility(View.VISIBLE);
-        tvScannedCodeNotFound.setText(code);
+        tvScannedCodeNotFound.setText("CÓDIGO: " + code);
         
         btnGoToRegister.setOnClickListener(v -> {
-            ProductoDialogFragment dialog = ProductoDialogFragment.newInstance(usuarioId, null, code);
-            dialog.setOnProductoGuardadoListener(nuevoProducto -> {
-                Executors.newSingleThreadExecutor().execute(() -> {
-                    db.productoDao().insert(nuevoProducto);
-                    runOnUiThread(() -> {
-                        Toast.makeText(this, "Producto registrado: " + nuevoProducto.getNombre(), Toast.LENGTH_SHORT).show();
-                        showProductFound(nuevoProducto); // Mostrarlo una vez registrado
-                    });
-                });
-            });
+            ProductoDialogFragment dialog = ProductoDialogFragment.newInstance(userUid, userName, null, code);
             dialog.show(getSupportFragmentManager(), "registrar_producto");
         });
     }
 
     private void showProductFound(Producto producto) {
+        viewInstructions.setVisibility(View.GONE);
         viewNotFound.setVisibility(View.GONE);
         viewFound.setVisibility(View.VISIBLE);
         
         tvFoundProductNameHeader.setText(producto.getNombre());
-        tvFoundCode.setText(producto.getCodigoBarras());
-        tvFoundName.setText(producto.getNombre());
-        tvFoundQty.setText(String.format(Locale.getDefault(), "%d/%d", producto.getCantidadActual(), producto.getCantidadMinima()));
-        tvFoundPrice.setText(String.format(Locale.getDefault(), "$%.2f", producto.getPrecioUnitario()));
+        tvFoundCode.setText(producto.getCodigo_barras());
+        tvFoundQty.setText(String.valueOf(producto.getStock_actual()));
+        tvFoundPrice.setText(String.format(Locale.getDefault(), "$%.2f", producto.getPrecio()));
 
         btnAdminProduct.setOnClickListener(v -> {
-            ProductoDialogFragment dialog = ProductoDialogFragment.newInstance(usuarioId, producto);
-            dialog.setOnProductoGuardadoListener(actualizado -> {
-                Executors.newSingleThreadExecutor().execute(() -> {
-                    db.productoDao().update(actualizado);
-                    runOnUiThread(() -> {
-                        Toast.makeText(this, "Producto actualizado", Toast.LENGTH_SHORT).show();
-                        showProductFound(actualizado);
-                    });
-                });
-            });
+            ProductoDialogFragment dialog = ProductoDialogFragment.newInstance(userUid, userName, producto);
             dialog.show(getSupportFragmentManager(), "editar_producto");
         });
+    }
+
+    private void resetScannerUI() {
+        viewNotFound.setVisibility(View.GONE);
+        viewFound.setVisibility(View.GONE);
+        viewInstructions.setVisibility(View.VISIBLE);
+        isScanningPaused = false;
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        isScanningPaused = false;
+        resetScannerUI();
     }
 
     @Override
